@@ -1,0 +1,55 @@
+{
+  "assignments": [
+    {
+      "id": "assignment_1750767543871_5p38js2xz",
+      "title": "Chapter-1 Practice Paper",
+      "subject": "Mathematics",
+      "chapter": "Algebra",
+      "description": "Each Question carries 1 marks",
+      "dueDate": null,
+      "maxMarks": 2,
+      "calculatedMarks": 2,
+      "questions": [
+        {
+          "id": "q_1",
+          "questionText": "What is algebra",
+          "questionType": "multiple-choice",
+          "marks": 1,
+          "required": true,
+          "options": [
+            {
+              "text": "Hello",
+              "isCorrect": true
+            },
+            {
+              "text": "Hello 2",
+              "isCorrect": false
+            },
+            {
+              "text": "Hello 4",
+              "isCorrect": false
+            }
+          ],
+          "correctAnswer": null,
+          "order": 1
+        },
+        {
+          "id": "q_2",
+          "questionText": "What is algebric expression",
+          "questionType": "short-answer",
+          "marks": 1,
+          "required": true,
+          "options": [],
+          "correctAnswer": null,
+          "order": 2
+        }
+      ],
+      "classId": "class10202526",
+      "teacherId": "1750762196284",
+      "status": "active",
+      "submissions": [],
+      "createdAt": "2025-06-24T12:19:03.872Z",
+      "updatedAt": "2025-06-24T12:19:03.872Z"
+    }
+  ]
+}

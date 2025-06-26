@@ -1,3 +1,5 @@
 <template>
-    <FirstPage/>
+    <!-- <HeroSection/> -->
+     <LandingPage/>
+     <!-- <TeacherSection/> -->
 </template>

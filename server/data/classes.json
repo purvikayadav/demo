@@ -1,0 +1,49 @@
+{
+  "classes": [
+    {
+      "id": "class8",
+      "name": "Class 8",
+      "icon": "mdi-numeric-8-box",
+      "studentCount": 40,
+      "teacherId": 1750762196284,
+      "createdAt": "2025-06-24T11:04:08.718Z",
+      "updatedAt": "2025-06-24T11:04:08.718Z"
+    },
+    {
+      "id": "class10202526",
+      "name": "Class-10 (2025-26)",
+      "icon": "mdi-numeric-10-box",
+      "studentCount": 20,
+      "teacherId": 1750762196284,
+      "createdAt": "2025-06-24T11:17:52.994Z",
+      "updatedAt": "2025-06-24T11:17:52.994Z"
+    },
+    {
+      "id": "class12202425_1750762196284_1750765017822",
+      "name": "Class-12(2024-25)",
+      "icon": "mdi-numeric-12-box",
+      "studentCount": 30,
+      "teacherId": "1750762196284",
+      "createdAt": "2025-06-24T11:36:57.822Z",
+      "updatedAt": "2025-06-24T11:36:57.822Z"
+    },
+    {
+      "id": "class22020_1750760578690_1750766688148",
+      "name": "Class-2 (2020)",
+      "icon": "mdi-numeric-2-box",
+      "studentCount": 20,
+      "teacherId": "1750760578690",
+      "createdAt": "2025-06-24T12:04:48.148Z",
+      "updatedAt": "2025-06-24T12:04:48.148Z"
+    },
+    {
+      "id": "class12202526_1750760578690_1750766716706",
+      "name": "Class-12 (2025-26)",
+      "icon": "mdi-numeric-12-box",
+      "studentCount": 50,
+      "teacherId": "1750760578690",
+      "createdAt": "2025-06-24T12:05:16.706Z",
+      "updatedAt": "2025-06-24T12:05:16.706Z"
+    }
+  ]
+}
