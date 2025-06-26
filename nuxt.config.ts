@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   ssr: true,
   nitro: {
-    preset: 'node'
+    preset: 'standalone'
   },
   compatibilityDate: '2025-05-15',
   devtools: { enabled: true },
