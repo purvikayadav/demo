@@ -1,5 +1,5 @@
-import db from '~/server/utils/database'
-import jwt from 'jsonwebtoken'
+import fs from 'fs'
+import path from 'path'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -13,8 +13,22 @@ export default defineEventHandler(async (event) => {
       })
     }
     
+    // Path to your JSON file
+    const filePath = path.join(process.cwd(), 'server/data/users.json')
+    
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Users database not found'
+      })
+    }
+    
+    // Read existing data
+    const jsonData = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+    
     // Find user by contact number
-    const user = await db.findUserByContact(contactNo)
+    const user = jsonData.users.find(u => u.contactNo === contactNo)
     
     if (!user) {
       throw createError({
@@ -32,33 +46,22 @@ export default defineEventHandler(async (event) => {
     }
     
     // Update last login time
-    await db.updateUser(user.id, { lastLogin: new Date().toISOString() })
+    user.lastLogin = new Date().toISOString()
     
-    // Generate JWT token
-    const config = useRuntimeConfig()
-    const token = jwt.sign(
-      { 
-        userId: user.id, 
-        contactNo: user.contactNo,
-        name: user.name 
-      },
-      config.jwtSecret,
-      { expiresIn: '7d' }
-    )
+    // Save updated data
+    fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2))
     
     // Return success with user data (excluding password)
     const { password: _, ...userWithoutPassword } = user
     
     return { 
       success: true, 
-      user: { ...userWithoutPassword, lastLogin: new Date().toISOString() },
+      user: userWithoutPassword,
       message: 'Login successful',
-      token
+      token: `teacher_${user.id}_${Date.now()}` // Simple token for session
     }
     
   } catch (error) {
-    console.error('Login error:', error)
-    
     // If it's already a createError, throw it as is
     if (error.statusCode) {
       throw error
