@@ -1,37 +1,60 @@
-import fs from 'fs'
-import path from 'path'
+import db from '~/server/utils/database'
 
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
+    const { name, contactNo, password } = body
     
-    // Path to your JSON file
-    const filePath = path.join(process.cwd(), 'server/data/users.json')
-    
-    // Read existing data
-    const jsonData = JSON.parse(fs.readFileSync(filePath, 'utf8'))
-    
-    // Add new user
-    const newUser = {
-      id: Date.now(),
-      name: body.name,
-    //   email: body.email,
-      contactNo: body.contactNo,
-      password: body.password,
-      confirmPassword: body.confirmPassword,
-      registeredAt: new Date().toISOString()
+    // Validate input
+    if (!name || !contactNo || !password) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Name, contact number, and password are required'
+      })
     }
     
-    jsonData.users.push(newUser)
+    // Validate password strength
+    if (password.length < 8) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Password must be at least 8 characters long'
+      })
+    }
     
-    // Write back to file
-    fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2))
+    // Create new user
+    const newUser = await db.createUser({
+      name: name.trim(),
+      contactNo: contactNo.trim(),
+      password: password // In production, hash this with bcrypt
+    })
     
-    return { success: true, user: newUser }
+    // Return success without password
+    const { password: _, ...userWithoutPassword } = newUser
+    
+    return { 
+      success: true, 
+      user: userWithoutPassword,
+      message: 'Registration successful'
+    }
+    
   } catch (error) {
+    console.error('Registration error:', error)
+    
+    // If it's already a createError, throw it as is
+    if (error.statusCode) {
+      throw error
+    }
+    
+    if (error.message.includes('already exists')) {
+      throw createError({
+        statusCode: 409,
+        statusMessage: error.message
+      })
+    }
+    
     throw createError({
       statusCode: 500,
-      statusMessage: 'Registration failed'
+      statusMessage: 'Registration failed. Please try again.'
     })
   }
 })
