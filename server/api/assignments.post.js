@@ -33,9 +33,7 @@ export default defineEventHandler(async (event) => {
     }
     
     // Path to assignments JSON file
-    // const filePath = path.join(process.cwd(), 'server/data/assignments.json')
-    const filePath = path.join(__dirname, '../data/assignments.json')
-
+    const filePath = path.join(process.cwd(), 'server/data/assignments.json')
     
     // Ensure directory exists
     const dir = path.dirname(filePath)

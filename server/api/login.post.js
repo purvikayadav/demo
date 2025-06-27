@@ -14,8 +14,7 @@ export default defineEventHandler(async (event) => {
     }
     
     // Path to your JSON file
-    // const filePath = path.join(process.cwd(), 'server/data/users.json')
-    const filePath = path.join(__dirname, '../data/users.json')
+    const filePath = path.join(process.cwd(), 'server/data/users.json')
     
     // Check if file exists
     if (!fs.existsSync(filePath)) {
