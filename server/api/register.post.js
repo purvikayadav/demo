@@ -6,7 +6,8 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     
     // Path to your JSON file
-    const filePath = path.join(process.cwd(), 'server/data/users.json')
+    // const filePath = path.join(process.cwd(), 'server/data/users.json')
+    const filePath = path.join(__dirname, '../data/users.json')
     
     // Read existing data
     const jsonData = JSON.parse(fs.readFileSync(filePath, 'utf8'))

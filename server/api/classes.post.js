@@ -15,7 +15,8 @@ export default defineEventHandler(async (event) => {
     }
     
     // Path to your JSON file
-    const filePath = path.join(process.cwd(), 'server/data/classes.json')
+    // const filePath = path.join(process.cwd(), 'server/data/classes.json')
+    const filePath = path.join(__dirname, '../data/classes.json')
     
     // Ensure directory exists
     const dir = path.dirname(filePath)

@@ -1,9 +1,8 @@
-// server/api/assignments.put.js
-// PUT endpoint for updating assignments
+import fs from 'fs'
+import path from 'path'
 
 export default defineEventHandler(async (event) => {
   try {
-    // Only allow PUT method
     if (getMethod(event) !== 'PUT') {
       throw createError({
         statusCode: 405,
@@ -11,18 +10,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Parse request body
     const body = await readBody(event)
     console.log('📝 Update Assignment Request Body:', body)
 
-    // Validate required fields
-    const { 
-      assignmentId, 
-      assignmentTitle, 
-      subject, 
-      chapter, 
-      teacherId, 
-      classId 
+    const {
+      assignmentId,
+      assignmentTitle,
+      subject,
+      chapter,
+      teacherId,
+      classId
     } = body
 
     if (!assignmentId) {
@@ -39,7 +36,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Validate questions if provided
     if (body.questions && (!Array.isArray(body.questions) || body.questions.length === 0)) {
       throw createError({
         statusCode: 400,
@@ -47,7 +43,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Calculate total marks from questions
     let calculatedMarks = 0
     if (body.questions && body.questions.length > 0) {
       calculatedMarks = body.questions.reduce((total, question) => {
@@ -55,7 +50,6 @@ export default defineEventHandler(async (event) => {
       }, 0)
     }
 
-    // Prepare update data
     const updateData = {
       title: assignmentTitle.trim(),
       subject: subject.trim(),
@@ -72,82 +66,59 @@ export default defineEventHandler(async (event) => {
 
     console.log('🔄 Updating assignment with data:', updateData)
 
-    // Here you would typically update in your database
-    // For demonstration, I'm showing the structure you'd use with different ORMs:
+    // ✅ Path to assignments JSON (works on Vercel too)
+    const filePath = path.join(__dirname, '../data/assignments.json')
 
-    /* 
-    // Example with Prisma:
-    const updatedAssignment = await prisma.assignment.update({
-      where: { 
-        id: parseInt(assignmentId),
-        teacherId: parseInt(teacherId) // Security: ensure teacher owns the assignment
-      },
-      data: updateData
-    })
-    */
-
-    /* 
-    // Example with Mongoose:
-    const updatedAssignment = await Assignment.findOneAndUpdate(
-      { 
-        _id: assignmentId, 
-        teacherId: parseInt(teacherId) 
-      },
-      updateData,
-      { new: true }
-    )
-    */
-
-    /*
-    // Example with raw SQL:
-    const [updatedRows] = await db.execute(`
-      UPDATE assignments 
-      SET title = ?, subject = ?, chapter = ?, description = ?, 
-          dueDate = ?, maxMarks = ?, calculatedMarks = ?, 
-          questions = ?, updatedAt = ?
-      WHERE id = ? AND teacherId = ?
-    `, [
-      updateData.title,
-      updateData.subject, 
-      updateData.chapter,
-      updateData.description,
-      updateData.dueDate,
-      updateData.maxMarks,
-      updateData.calculatedMarks,
-      JSON.stringify(updateData.questions),
-      updateData.updatedAt,
-      parseInt(assignmentId),
-      parseInt(teacherId)
-    ])
-    */
-
-    // Mock response for demonstration
-    // In real implementation, replace this with actual database update
-    const mockUpdatedAssignment = {
-      id: parseInt(assignmentId),
-      ...updateData,
-      createdAt: new Date().toISOString(), // This would come from DB
-      submissions: [] // This would come from DB
+    let assignments = []
+    if (fs.existsSync(filePath)) {
+      const fileContent = fs.readFileSync(filePath, 'utf8')
+      try {
+        const jsonData = JSON.parse(fileContent)
+        assignments = jsonData.assignments || []
+      } catch (e) {
+        console.error('❌ Failed to parse assignments file:', e)
+        assignments = []
+      }
     }
 
-    console.log('✅ Assignment updated successfully:', mockUpdatedAssignment)
+    const assignmentIndex = assignments.findIndex(
+      a => a.id === assignmentId && parseInt(a.teacherId) === parseInt(teacherId)
+    )
 
-    // Return success response
+    if (assignmentIndex === -1) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Assignment not found or you do not have permission to edit it'
+      })
+    }
+
+    const original = assignments[assignmentIndex]
+    const updatedAssignment = {
+      ...original,
+      ...updateData,
+      id: assignmentId,
+      createdAt: original.createdAt,
+      submissions: original.submissions || []
+    }
+
+    assignments[assignmentIndex] = updatedAssignment
+    fs.writeFileSync(filePath, JSON.stringify({ assignments }, null, 2))
+
+    console.log('✅ Assignment updated successfully:', updatedAssignment)
+
     return {
       success: true,
       message: 'Assignment updated successfully',
-      assignment: mockUpdatedAssignment
+      assignment: updatedAssignment
     }
 
   } catch (error) {
     console.error('❌ Error updating assignment:', error)
 
-    // Handle specific errors
     if (error.statusCode) {
       throw error
     }
 
-    // Handle database errors
     if (error.code === 'P2025' || error.message?.includes('not found')) {
       throw createError({
         statusCode: 404,
@@ -162,38 +133,9 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Generic error
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal server error while updating assignment'
     })
   }
 })
-
-// Alternative file structure if you're using a single assignments.js file:
-/*
-// server/api/assignments.js
-export default defineEventHandler(async (event) => {
-  const method = getMethod(event)
-  
-  switch (method) {
-    case 'GET':
-      return handleGetAssignments(event)
-    case 'POST':
-      return handleCreateAssignment(event)
-    case 'PUT':
-      return handleUpdateAssignment(event)
-    case 'DELETE':
-      return handleDeleteAssignment(event)
-    default:
-      throw createError({
-        statusCode: 405,
-        statusMessage: 'Method Not Allowed'
-      })
-  }
-})
-
-async function handleUpdateAssignment(event) {
-  // Same update logic as above
-}
-*/
