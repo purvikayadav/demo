@@ -23,3 +23,9 @@ logs
 .env.*
 !.env.example
 .output/
+
+.vercel
+# Environment variables
+.env
+.env.local
+.env.production

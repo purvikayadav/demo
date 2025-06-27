@@ -1,38 +1,43 @@
-import fs from 'fs'
-import path from 'path'
-
 export default defineEventHandler(async (event) => {
   try {
+    // Set CORS headers for production
+    setHeaders(event, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    })
+
+    // Handle preflight requests
+    if (getMethod(event) === 'OPTIONS') {
+      return ''
+    }
+
+    // Read request body
     const body = await readBody(event)
     
-    // Path to your JSON file
-    const filePath = path.join(process.cwd(), 'server/data/users.json')
+    // Validate input
+    if (!body.email || !body.password) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Email and password are required'
+      })
+    }
+
+    // Your registration logic here
+    const result = await registerUser(body)
     
-    // Read existing data
-    const jsonData = JSON.parse(fs.readFileSync(filePath, 'utf8'))
-    
-    // Add new user
-    const newUser = {
-      id: Date.now(),
-      name: body.name,
-    //   email: body.email,
-      contactNo: body.contactNo,
-      password: body.password,
-      confirmPassword: body.confirmPassword,
-      registeredAt: new Date().toISOString()
+    return {
+      success: true,
+      data: result
     }
     
-    jsonData.users.push(newUser)
-    
-    // Write back to file
-    fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2))
-    
-    return { success: true, user: newUser }
   } catch (error) {
-    log.error(error)
+    console.error('Registration error:', error)
+    
+    // Return proper error response
     throw createError({
-      statusCode: 400,
-      statusMessage: 'Registration failed'
+      statusCode: error.statusCode || 500,
+      statusMessage: error.message || 'Internal Server Error'
     })
   }
 })
