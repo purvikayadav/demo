@@ -29,8 +29,9 @@ export default defineEventHandler(async (event) => {
     
     return { success: true, user: newUser }
   } catch (error) {
+    log.error(error)
     throw createError({
-      statusCode: 500,
+      statusCode: 400,
       statusMessage: 'Registration failed'
     })
   }
