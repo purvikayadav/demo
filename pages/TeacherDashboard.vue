@@ -2282,6 +2282,343 @@ viewAssignment(assignment) {
         </v-btn>
       </template>
     </v-snackbar>
+    <!-- ADD THIS NEW DIALOG TO YOUR TEMPLATE SECTION (after the existing dialogs, before closing </v-app>) -->
+
+    <!-- Assignment Details Dialog (Teacher View) -->
+    <v-dialog v-model="showAssignmentDetailsDialog" max-width="900px" persistent>
+      <v-card>
+        <v-card-title class="text-h5 font-weight-bold pa-6 pb-2" style="color: #6495ED;">
+          <v-icon start>mdi-file-document-outline</v-icon>
+          Assignment Details
+          <v-spacer></v-spacer>
+          <v-chip color="#6495ED" variant="tonal">
+            {{ assignmentDetails?.status || 'Active' }}
+          </v-chip>
+        </v-card-title>
+        
+        <v-divider></v-divider>
+
+        <v-card-text class="pa-0" style="max-height: 70vh; overflow-y: auto;">
+          <div v-if="assignmentDetails" class="assignment-details-content">
+            
+            <!-- Basic Information Section -->
+            <div class="details-section pa-6">
+              <h4 class="text-h6 font-weight-bold mb-4" style="color: #6495ED;">
+                <v-icon start>mdi-information</v-icon>
+                Basic Information
+              </h4>
+              
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-card variant="outlined" class="pa-4 info-card">
+                    <div class="d-flex align-center mb-2">
+                      <v-icon color="#6495ED" class="mr-2">mdi-book</v-icon>
+                      <span class="text-subtitle-2 font-weight-bold">Subject</span>
+                    </div>
+                    <p class="text-h6 mb-0">{{ assignmentDetails.subject }}</p>
+                  </v-card>
+                </v-col>
+                
+                <v-col cols="12" md="6">
+                  <v-card variant="outlined" class="pa-4 info-card">
+                    <div class="d-flex align-center mb-2">
+                      <v-icon color="#6495ED" class="mr-2">mdi-bookmark</v-icon>
+                      <span class="text-subtitle-2 font-weight-bold">Chapter</span>
+                    </div>
+                    <p class="text-h6 mb-0">{{ assignmentDetails.chapter }}</p>
+                  </v-card>
+                </v-col>
+                
+                <v-col cols="12">
+                  <v-card variant="outlined" class="pa-4 info-card">
+                    <div class="d-flex align-center mb-2">
+                      <v-icon color="#6495ED" class="mr-2">mdi-file-document</v-icon>
+                      <span class="text-subtitle-2 font-weight-bold">Title</span>
+                    </div>
+                    <p class="text-h6 mb-0">{{ assignmentDetails.title }}</p>
+                  </v-card>
+                </v-col>
+                
+                <v-col cols="12" v-if="assignmentDetails.description">
+                  <v-card variant="outlined" class="pa-4 info-card">
+                    <div class="d-flex align-center mb-2">
+                      <v-icon color="#6495ED" class="mr-2">mdi-text</v-icon>
+                      <span class="text-subtitle-2 font-weight-bold">Description</span>
+                    </div>
+                    <p class="text-body-1 mb-0">{{ assignmentDetails.description }}</p>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </div>
+
+            <v-divider></v-divider>
+
+            <!-- Assignment Statistics -->
+            <div class="details-section pa-6">
+              <h4 class="text-h6 font-weight-bold mb-4" style="color: #6495ED;">
+                <v-icon start>mdi-chart-box</v-icon>
+                Assignment Statistics
+              </h4>
+              
+              <v-row>
+                <v-col cols="6" md="3">
+                  <v-card color="#e3f2fd" class="text-center pa-4 stat-card">
+                    <v-icon size="32" color="#1976d2" class="mb-2">mdi-help-circle</v-icon>
+                    <h3 class="text-h4 font-weight-bold" style="color: #1976d2;">
+                      {{ assignmentDetails.questions?.length || 0 }}
+                    </h3>
+                    <p class="text-body-2">Questions</p>
+                  </v-card>
+                </v-col>
+                
+                <v-col cols="6" md="3">
+                  <v-card color="#f3e5f5" class="text-center pa-4 stat-card">
+                    <v-icon size="32" color="#7b1fa2" class="mb-2">mdi-star</v-icon>
+                    <h3 class="text-h4 font-weight-bold" style="color: #7b1fa2;">
+                      {{ getAssignmentTotalMarks(assignmentDetails) }}
+                    </h3>
+                    <p class="text-body-2">Total Marks</p>
+                  </v-card>
+                </v-col>
+                
+                <v-col cols="6" md="3">
+                  <v-card color="#e8f5e8" class="text-center pa-4 stat-card">
+                    <v-icon size="32" color="#388e3c" class="mb-2">mdi-account-check</v-icon>
+                    <h3 class="text-h4 font-weight-bold" style="color: #388e3c;">
+                      {{ assignmentDetails.submissions?.length || 0 }}
+                    </h3>
+                    <p class="text-body-2">Submissions</p>
+                  </v-card>
+                </v-col>
+                
+                <v-col cols="6" md="3">
+                  <v-card color="#fff3e0" class="text-center pa-4 stat-card">
+                    <v-icon size="32" color="#f57c00" class="mb-2">mdi-calendar</v-icon>
+                    <h3 class="text-subtitle-1 font-weight-bold" style="color: #f57c00;">
+                      {{ assignmentDetails.dueDate ? formatDate(assignmentDetails.dueDate) : 'No Due Date' }}
+                    </h3>
+                    <p class="text-body-2">Due Date</p>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </div>
+
+            <v-divider></v-divider>
+
+            <!-- Questions Breakdown -->
+            <div class="details-section pa-6">
+              <div class="d-flex justify-space-between align-center mb-4">
+                <h4 class="text-h6 font-weight-bold" style="color: #6495ED;">
+                  <v-icon start>mdi-format-list-numbered</v-icon>
+                  Questions Breakdown
+                </h4>
+                <v-chip color="#6495ED" variant="outlined">
+                  {{ assignmentDetails.questions?.length || 0 }} Question{{ (assignmentDetails.questions?.length || 0) !== 1 ? 's' : '' }}
+                </v-chip>
+              </div>
+              
+              <div v-if="assignmentDetails.questions && assignmentDetails.questions.length > 0">
+                <v-expansion-panels variant="accordion" class="mb-4">
+                  <v-expansion-panel
+                    v-for="(question, index) in assignmentDetails.questions"
+                    :key="index"
+                  >
+                    <v-expansion-panel-title>
+                      <div class="d-flex justify-space-between align-center w-100">
+                        <div class="d-flex align-center">
+                          <v-chip size="small" color="#6495ED" variant="flat" class="mr-3">
+                            Q{{ index + 1 }}
+                          </v-chip>
+                          <span class="text-subtitle-1 font-weight-medium">
+                            {{ question.questionText.length > 50 ? 
+                              question.questionText.substring(0, 50) + '...' : 
+                              question.questionText }}
+                          </span>
+                        </div>
+                        <div class="d-flex align-center">
+                          <v-chip 
+                            size="small" 
+                            :color="getQuestionTypeColor(question.questionType)" 
+                            variant="tonal"
+                            class="mr-2"
+                          >
+                            {{ getQuestionTypeLabel(question.questionType) }}
+                          </v-chip>
+                          <v-chip size="small" color="orange" variant="flat">
+                            {{ question.marks || 1 }} Mark{{ (question.marks || 1) > 1 ? 's' : '' }}
+                          </v-chip>
+                        </div>
+                      </div>
+                    </v-expansion-panel-title>
+                    
+                    <v-expansion-panel-text>
+                      <div class="question-detail-content pa-4">
+                        <h5 class="text-subtitle-1 font-weight-bold mb-3">
+                          Question {{ index + 1 }}:
+                        </h5>
+                        <p class="text-body-1 mb-4">{{ question.questionText }}</p>
+                        
+                        <!-- Show options for multiple choice -->
+                        <div v-if="question.questionType === 'multiple-choice' && question.options">
+                          <h6 class="text-subtitle-2 font-weight-bold mb-2">Options:</h6>
+                          <v-list density="compact">
+                            <v-list-item
+                              v-for="(option, optionIndex) in question.options"
+                              :key="optionIndex"
+                              class="option-item"
+                              :class="{ 'correct-option': option.isCorrect }"
+                            >
+                              <template v-slot:prepend>
+                                <v-chip 
+                                  size="x-small" 
+                                  :color="option.isCorrect ? 'success' : 'default'"
+                                  :variant="option.isCorrect ? 'flat' : 'outlined'"
+                                >
+                                  {{ String.fromCharCode(65 + optionIndex) }}
+                                </v-chip>
+                              </template>
+                              <v-list-item-title>{{ option.text }}</v-list-item-title>
+                              <template v-slot:append v-if="option.isCorrect">
+                                <v-icon color="success">mdi-check-circle</v-icon>
+                              </template>
+                            </v-list-item>
+                          </v-list>
+                        </div>
+                        
+                        <!-- Show correct answer for true/false -->
+                        <div v-if="question.questionType === 'true-false'">
+                          <h6 class="text-subtitle-2 font-weight-bold mb-2">Correct Answer:</h6>
+                          <v-chip 
+                            :color="question.correctAnswer === 'true' ? 'success' : 'error'"
+                            variant="flat"
+                          >
+                            <v-icon start>
+                              {{ question.correctAnswer === 'true' ? 'mdi-check-circle' : 'mdi-close-circle' }}
+                            </v-icon>
+                            {{ question.correctAnswer === 'true' ? 'TRUE' : 'FALSE' }}
+                          </v-chip>
+                        </div>
+                        
+                        <!-- For text-based questions -->
+                        <div v-if="question.questionType === 'short-answer' || question.questionType === 'long-answer'">
+                          <v-alert color="info" variant="tonal" class="mt-3">
+                            <v-icon start>mdi-information</v-icon>
+                            This is a {{ question.questionType.replace('-', ' ') }} question that requires manual evaluation.
+                          </v-alert>
+                        </div>
+                      </div>
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+              </div>
+              
+              <div v-else class="text-center pa-8">
+                <v-icon size="64" color="grey-lighten-2">mdi-help-circle-outline</v-icon>
+                <p class="text-h6 mt-3 text-grey">No questions found</p>
+                <p class="text-body-2 text-grey">This assignment doesn't have any questions yet.</p>
+              </div>
+            </div>
+
+            <v-divider></v-divider>
+
+            <!-- Assignment Metadata -->
+            <div class="details-section pa-6">
+              <h4 class="text-h6 font-weight-bold mb-4" style="color: #6495ED;">
+                <v-icon start>mdi-clock-outline</v-icon>
+                Assignment Metadata
+              </h4>
+              
+              <v-row>
+                <v-col cols="12" md="6">
+                  <div class="metadata-item">
+                    <div class="d-flex align-center mb-2">
+                      <v-icon color="#6495ED" size="20" class="mr-2">mdi-calendar-plus</v-icon>
+                      <span class="text-subtitle-2 font-weight-bold">Created On</span>
+                    </div>
+                    <p class="text-body-1 mb-0">{{ formatDate(assignmentDetails.createdAt) }}</p>
+                  </div>
+                </v-col>
+                
+                <v-col cols="12" md="6">
+                  <div class="metadata-item">
+                    <div class="d-flex align-center mb-2">
+                      <v-icon color="#6495ED" size="20" class="mr-2">mdi-update</v-icon>
+                      <span class="text-subtitle-2 font-weight-bold">Last Updated</span>
+                    </div>
+                    <p class="text-body-1 mb-0">{{ formatDate(assignmentDetails.updatedAt) }}</p>
+                  </div>
+                </v-col>
+                
+                <v-col cols="12" md="6">
+                  <div class="metadata-item">
+                    <div class="d-flex align-center mb-2">
+                      <v-icon color="#6495ED" size="20" class="mr-2">mdi-school</v-icon>
+                      <span class="text-subtitle-2 font-weight-bold">Class</span>
+                    </div>
+                    <p class="text-body-1 mb-0">{{ selectedClassInfo?.name || 'Unknown Class' }}</p>
+                  </div>
+                </v-col>
+                
+                <v-col cols="12" md="6">
+                  <div class="metadata-item">
+                    <div class="d-flex align-center mb-2">
+                      <v-icon color="#6495ED" size="20" class="mr-2">mdi-identifier</v-icon>
+                      <span class="text-subtitle-2 font-weight-bold">Assignment ID</span>
+                    </div>
+                    <p class="text-body-1 mb-0">{{ assignmentDetails.id }}</p>
+                  </div>
+                </v-col>
+              </v-row>
+            </div>
+          </div>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <!-- Footer Actions -->
+        <v-card-actions class="pa-6">
+          <v-btn 
+            variant="outlined" 
+            @click="closeAssignmentDetails"
+            size="large"
+          >
+            <v-icon start>mdi-close</v-icon>
+            Close
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="#6495ED"
+            variant="outlined"
+            @click="viewAssignmentPreview(assignmentDetails)"
+            size="large"
+          >
+            <v-icon start>mdi-eye</v-icon>
+            Student Preview
+          </v-btn>
+          <v-btn
+            color="green"
+            variant="outlined"
+            @click="viewSubmissions(assignmentDetails)"
+            size="large"
+            class="ml-2"
+          >
+            <v-icon start>mdi-clipboard-list</v-icon>
+            View Submissions
+          </v-btn>
+          <v-btn
+            color="#6495ED"
+            variant="flat"
+            @click="editAssignment(assignmentDetails)"
+            size="large"
+            class="ml-2"
+          >
+            <v-icon start>mdi-pencil</v-icon>
+            Edit Assignment
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </v-app>
 </template>
 
@@ -2294,6 +2631,8 @@ export default {
     name: 'TeacherDashboard',
     data() {
         return {
+            showAssignmentDetailsDialog: false,
+assignmentDetails: null,
             drawer: true,
             selectedClass: 'default', // Default to overview
             classes: [], // This will now be populated from API
@@ -2850,6 +3189,66 @@ Good luck with your assignment! 🎓`
                 this.showError('Failed to copy to clipboard')
             }
         },
+        // Assignment Details Methods
+viewAssignmentDetails(assignment) {
+    console.log('📋 Opening assignment details:', assignment.title)
+    this.assignmentDetails = assignment
+    this.showAssignmentDetailsDialog = true
+},
+
+closeAssignmentDetails() {
+    this.showAssignmentDetailsDialog = false
+    this.assignmentDetails = null
+},
+
+getAssignmentTotalMarks(assignment) {
+    if (!assignment) return 0
+    
+    // Check for explicitly set marks
+    if (assignment.maxMarks) {
+        return assignment.maxMarks
+    }
+    
+    if (assignment.calculatedMarks) {
+        return assignment.calculatedMarks
+    }
+    
+    // Calculate from questions
+    if (assignment.questions && assignment.questions.length > 0) {
+        return assignment.questions.reduce((total, question) => {
+            return total + (parseInt(question.marks) || 1)
+        }, 0)
+    }
+    
+    return 0
+},
+
+getQuestionTypeColor(questionType) {
+    const colors = {
+        'multiple-choice': 'blue',
+        'true-false': 'orange', 
+        'short-answer': 'green',
+        'long-answer': 'purple'
+    }
+    return colors[questionType] || 'grey'
+},
+
+getQuestionTypeLabel(questionType) {
+    const labels = {
+        'multiple-choice': 'Multiple Choice',
+        'true-false': 'True/False',
+        'short-answer': 'Short Answer', 
+        'long-answer': 'Long Answer'
+    }
+    return labels[questionType] || 'Unknown'
+},
+
+// UPDATE YOUR EXISTING viewAssignment METHOD TO USE THE DETAILS DIALOG
+// Replace your existing viewAssignment method with this:
+viewAssignment(assignment) {
+    console.log('📋 View assignment details:', assignment)
+    this.viewAssignmentDetails(assignment)
+},
 
         generateQRCode(assignment) {
             if (!process.client || !this.$refs.qrCode) return
@@ -4274,5 +4673,72 @@ Good luck with your assignment! 🎓`
   .v-container {
     padding: 16px !important;
   }
+}
+
+/* ADD THESE STYLES TO YOUR <style scoped> SECTION */
+
+/* Assignment Details Dialog Styles */
+.assignment-details-content {
+  background: linear-gradient(180deg, #fafbff 0%, #f5f7ff 100%);
+}
+
+.details-section {
+  background: white;
+  margin-bottom: 1px;
+}
+
+.info-card {
+  background: linear-gradient(135deg, #fafffe 0%, #f5f9ff 100%);
+  border-left: 4px solid #6495ED;
+  transition: all 0.3s ease;
+}
+
+.info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(100, 149, 237, 0.15);
+}
+
+.stat-card {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.question-detail-content {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f7ff 100%);
+  border-radius: 8px;
+  border: 1px solid rgba(100, 149, 237, 0.1);
+}
+
+.option-item {
+  border-radius: 8px;
+  margin-bottom: 4px;
+  transition: all 0.3s ease;
+}
+
+.option-item:hover {
+  background-color: rgba(100, 149, 237, 0.05);
+}
+
+.correct-option {
+  background-color: rgba(76, 175, 80, 0.1);
+  border-left: 4px solid #4caf50;
+}
+
+.metadata-item {
+  padding: 16px;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f7ff 100%);
+  border-radius: 8px;
+  border: 1px solid rgba(100, 149, 237, 0.1);
+  transition: all 0.3s ease;
+}
+
+.metadata-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(100, 149, 237, 0.1);
 }
 </style>

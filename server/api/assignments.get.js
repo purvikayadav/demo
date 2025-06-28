@@ -1,55 +1,36 @@
-import fs from 'fs'
-import path from 'path'
+// Fixed Assignments GET API - server/api/assignments.get.js
+import dataManager from '~/utils/dataManager.js'
 
 export default defineEventHandler(async (event) => {
   try {
     const query = getQuery(event)
     const { classId, teacherId } = query
     
-    // Validate input
     if (!classId || !teacherId) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Class ID and teacher ID are required'
       })
     }
-    
-    // Path to assignments JSON file
-    const filePath = path.join(process.cwd(), 'server/data/assignments.json')
-    
-    // Check if file exists
-    if (!fs.existsSync(filePath)) {
-      return { 
-        success: true, 
-        assignments: [],
-        message: 'No assignments found'
-      }
-    }
-    
-    // Read existing data
-    const jsonData = JSON.parse(fs.readFileSync(filePath, 'utf8'))
+
+    console.log('📋 Loading assignments for class:', classId, 'teacher:', teacherId)
+
+    // Read assignments data
+    const assignmentData = await dataManager.readData('assignments.json')
     
     // Ensure assignments array exists
-    if (!jsonData.assignments || !Array.isArray(jsonData.assignments)) {
-      return { 
-        success: true, 
-        assignments: [],
-        message: 'No assignments array found'
-      }
+    if (!assignmentData.assignments) {
+      assignmentData.assignments = []
     }
-    
-    // Filter assignments by class and teacher
-    const classAssignments = jsonData.assignments.filter(assignment => 
+
+    // Filter assignments
+    const classAssignments = assignmentData.assignments.filter(assignment => 
       String(assignment.classId) === String(classId) && 
       String(assignment.teacherId) === String(teacherId)
     )
-    
-    console.log('=== GET ASSIGNMENTS DEBUG ===')
-    console.log('Requested Class ID:', classId)
-    console.log('Requested Teacher ID:', teacherId)
-    console.log('Found assignments:', classAssignments.length)
-    console.log('=== END DEBUG ===')
-    
+
+    console.log('✅ Found assignments:', classAssignments.length)
+
     return { 
       success: true, 
       assignments: classAssignments,
@@ -57,7 +38,7 @@ export default defineEventHandler(async (event) => {
     }
     
   } catch (error) {
-    console.error('Get assignments error:', error)
+    console.error('💥 Get assignments error:', error)
     
     if (error.statusCode) {
       throw error
@@ -65,7 +46,7 @@ export default defineEventHandler(async (event) => {
     
     throw createError({
       statusCode: 500,
-      statusMessage: 'Failed to retrieve assignments'
+      statusMessage: `Failed to retrieve assignments: ${error.message}`
     })
   }
 })

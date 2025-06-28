@@ -50,6 +50,44 @@
       "submissions": [],
       "createdAt": "2025-06-24T12:19:03.872Z",
       "updatedAt": "2025-06-24T12:19:03.872Z"
+    },
+    {
+      "id": "assignment_1751085348862_gshctvtt0",
+      "title": "Chapter-1 Practice Question",
+      "subject": "English",
+      "chapter": "Chapter-1",
+      "description": "Each Question carries 5 marks",
+      "dueDate": null,
+      "maxMarks": 10,
+      "calculatedMarks": 10,
+      "questions": [
+        {
+          "id": "q_1",
+          "questionText": "Explain About Lencho?",
+          "questionType": "long-answer",
+          "marks": 5,
+          "required": true,
+          "options": [],
+          "correctAnswer": null,
+          "order": 1
+        },
+        {
+          "id": "q_2",
+          "questionText": "Where Lencho and family resides? What they are working?",
+          "questionType": "short-answer",
+          "marks": 5,
+          "required": true,
+          "options": [],
+          "correctAnswer": null,
+          "order": 2
+        }
+      ],
+      "classId": "class10202526",
+      "teacherId": "1750762196284",
+      "status": "active",
+      "submissions": [],
+      "createdAt": "2025-06-28T04:35:48.862Z",
+      "updatedAt": "2025-06-28T04:35:48.862Z"
     }
   ]
 }

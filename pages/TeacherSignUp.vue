@@ -5,37 +5,25 @@
                 <v-col cols="12" sm="8" md="6" lg="4">
                     <v-card class="registration-card" elevation="8">
                         <v-card-title class="text-center pa-6">
-                            <h2 class="text-h4 font-weight-bold registration-title">Teacher Registration</h2>
+                            <h2 class="text-h4 font-weight-bold registration-title">Registration</h2>
                         </v-card-title>
 
                         <v-card-text class="pa-6">
                             <v-form ref="form" v-model="valid" lazy-validation>
                                 <!-- Name Field -->
-                                <v-text-field 
-                                    v-model="formData.name" 
-                                    :rules="nameRules" 
-                                    label="Full Name"
-                                    prepend-inner-icon="mdi-account" 
-                                    variant="outlined" 
-                                    class="mb-3" 
-                                    required
-                                    clearable
-                                ></v-text-field>
+                                <v-text-field v-model="formData.name" :rules="nameRules" label="Full Name"
+                                    prepend-inner-icon="mdi-account" variant="outlined" class="mb-3" required
+                                    clearable></v-text-field>
+
+                                <!-- Email Field -->
+                                <!-- <v-text-field v-model="formData.email" :rules="emailRules" label="Email Address"
+                                    prepend-inner-icon="mdi-email" variant="outlined" class="mb-3" type="email" required
+                                    clearable></v-text-field> -->
 
                                 <!-- Contact Number Field -->
-                                <v-text-field 
-                                    v-model="formData.contactNo" 
-                                    :rules="contactRules" 
-                                    label="Contact Number"
-                                    prepend-inner-icon="mdi-phone" 
-                                    variant="outlined" 
-                                    class="mb-3" 
-                                    type="tel" 
-                                    required
-                                    clearable
-                                    hint="Enter your 10-digit mobile number"
-                                    persistent-hint
-                                ></v-text-field>
+                                <v-text-field v-model="formData.contactNo" :rules="contactRules" label="Contact Number"
+                                    prepend-inner-icon="mdi-phone" variant="outlined" class="mb-3" type="tel" required
+                                    clearable></v-text-field>
 
                                 <!-- Password Field -->
                                 <v-text-field
@@ -66,30 +54,21 @@
                                 ></v-text-field>
 
                                 <!-- Registration Button -->
-                                <v-btn 
-                                    @click="handleRegistration" 
-                                    :disabled="!valid || loading" 
-                                    :loading="loading"
-                                    color="#6495ED" 
-                                    size="large" 
-                                    variant="flat"
-                                    class="w-100 registration-btn text-capitalize" 
-                                    elevation="2"
-                                >
+                                <v-btn @click="handleRegistration" :disabled="!valid || loading" :loading="loading"
+                                    color="#6495ED" size="large" variant="flat"
+                                    class="w-100 registration-btn text-capitalize" elevation="2">
                                     {{ loading ? 'Registering...' : 'Register' }}
                                 </v-btn>
-                                
-                                <v-divider class="my-4"></v-divider>
-                                
-                                <!-- Login Link -->
-                                <div class="text-center">
-                                    <span class="text-body-2">
-                                        Already have an account?
-                                        <NuxtLink to="/TeacherLogin" class="text-decoration-none login-link">
-                                            Login here
-                                        </NuxtLink>
-                                    </span>
-                                </div>
+                                <v-divider inset></v-divider>
+                                <hr class="my-4">
+                                <!-- <NuxtLink to="/login" class="text-decoration-none text-black d-flex justify-center">Already have an account?<span>  Login</span></NuxtLink> -->
+                                <span class="d-flex justify-center">
+                                    Already have an account?
+                                    <NuxtLink to="/TeacherLogin" class="text-decoration-none login-link">
+                                        Login
+                                    </NuxtLink>
+                                </span>
+
                             </v-form>
                         </v-card-text>
                     </v-card>
@@ -99,7 +78,7 @@
 
         <!-- Success Snackbar -->
         <v-snackbar v-model="showSuccessMessage" color="success" timeout="3000" location="top">
-            Registration successful! Redirecting to login...
+            Registration successful! Welcome aboard.
             <template v-slot:actions>
                 <v-btn color="white" variant="text" @click="showSuccessMessage = false">
                     Close
@@ -123,9 +102,8 @@
 definePageMeta({
     middleware: 'guest'
 })
-
 export default {
-    name: 'TeacherRegistration',
+    name: 'RegistrationForm',
     // Add navigation guard to block access after successful registration
     beforeRouteEnter(to, from, next) {
         // Check if user has successfully registered
@@ -146,21 +124,25 @@ export default {
             showConfirmPassword: false,
             formData: {
                 name: '',
+                // email: '',
                 contactNo: '',
                 password: '',
                 confirmPassword: ''
             },
             nameRules: [
-                v => !!v || 'Full name is required',
+                v => !!v || 'Name is required',
                 v => (v && v.length >= 2) || 'Name must be at least 2 characters',
                 v => (v && v.length <= 50) || 'Name must be less than 50 characters',
-                v => /^[a-zA-Z\s.]+$/.test(v) || 'Name can only contain letters, spaces, and dots'
+                v => /^[a-zA-Z\s]+$/.test(v) || 'Name can only contain letters and spaces'
+            ],
+            emailRules: [
+                v => !!v || 'Email is required',
+                v => /.+@.+\..+/.test(v) || 'Email must be valid'
             ],
             contactRules: [
                 v => !!v || 'Contact number is required',
                 v => /^[0-9+\-\s()]+$/.test(v) || 'Contact number must be valid',
-                v => (v && v.replace(/\D/g, '').length >= 10) || 'Contact number must be at least 10 digits',
-                v => (v && v.replace(/\D/g, '').length <= 15) || 'Contact number must be less than 15 digits'
+                v => (v && v.replace(/\D/g, '').length >= 10) || 'Contact number must be at least 10 digits'
             ],
             passwordRules: [
                 v => !!v || 'Password is required',
@@ -178,13 +160,11 @@ export default {
         }
     },
     methods: {
+        // In your registration component
         async handleRegistration() {
             const { valid } = await this.$refs.form.validate()
 
-            if (!valid) {
-                this.showError('Please fill in all required fields correctly.')
-                return
-            }
+            if (!valid) return
 
             this.loading = true
 
@@ -192,46 +172,40 @@ export default {
                 // Remove confirmPassword from the data sent to API
                 const { confirmPassword, ...registrationData } = this.formData
                 
-                console.log('Sending registration data:', registrationData)
-                
                 const response = await $fetch('/api/register', {
                     method: 'POST',
                     body: registrationData
                 })
 
-                if (response.success) {
-                    this.showSuccessMessage = true
-                    this.resetForm()
-                    
-                    // Mark registration as complete to block future access
-                    sessionStorage.setItem('registrationComplete', 'true')
-                    
-                    console.log('Registration successful:', response.data)
-                    
-                    setTimeout(() => {
-                        this.$router.push('/TeacherLogin')
-                    }, 2000)
-                } else {
-                    this.showError('Registration failed. Please try again.')
-                }
+                this.showSuccessMessage = true
+                this.resetForm()
+                
+                // Mark registration as complete to block future access
+                sessionStorage.setItem('registrationComplete', 'true')
+                
+                setTimeout(() => {
+                    this.$router.push('/TeacherLogin')
+                }, 1500)
 
             } catch (error) {
-                console.error('Registration error:', error)
-                
-                let errorMessage = 'Registration failed. Please try again.'
-                
-                if (error.statusCode === 409) {
-                    errorMessage = 'A user with this contact number already exists. Please use a different contact number or try logging in.'
-                } else if (error.statusCode === 400) {
-                    errorMessage = error.statusMessage || 'Invalid registration data. Please check your inputs.'
-                } else if (error.statusMessage) {
-                    errorMessage = error.statusMessage
-                }
-                
-                this.showError(errorMessage)
+                this.showError('Registration failed. Please try again.')
             } finally {
                 this.loading = false
             }
+        },
+
+        simulateApiCall() {
+            // Simulate API delay - Replace with actual API call
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    // Simulate success (90% success rate for demo)
+                    if (Math.random() > 0.1) {
+                        resolve({ success: true })
+                    } else {
+                        reject(new Error('API Error'))
+                    }
+                }, 2000)
+            })
         },
 
         resetForm() {
@@ -239,6 +213,7 @@ export default {
             this.$refs.form.resetValidation()
             this.formData = {
                 name: '',
+                email: '',
                 contactNo: '',
                 password: '',
                 confirmPassword: ''
@@ -250,49 +225,21 @@ export default {
         showError(message) {
             this.errorMessage = message
             this.showErrorMessage = true
-        },
-
-        // Check if user is already logged in
-        checkExistingSession() {
-            const session = localStorage.getItem('teacherSession')
-            if (session) {
-                try {
-                    const sessionData = JSON.parse(session)
-                    if (sessionData.isLoggedIn) {
-                        // User is already logged in, redirect to dashboard
-                        this.$router.push('/TeacherDashboard')
-                    }
-                } catch (error) {
-                    // Invalid session data, clear it
-                    localStorage.removeItem('teacherSession')
-                }
-            }
         }
-    },
-    mounted() {
-        // Check for existing session first
-        this.checkExistingSession()
-
-        // Auto-focus on name field when component mounts
-        this.$nextTick(() => {
-            const nameField = this.$refs.form?.$el?.querySelector('input[type="text"]')
-            if (nameField) {
-                nameField.focus()
-            }
-        })
     }
 }
 </script>
 
 <style scoped>
 .login-link {
-    color: #6495ED;
-    font-weight: 600;
+    color: black;
+    text-decoration: none;
+    margin-left: 4px;
     transition: color 0.3s, text-decoration 0.3s;
 }
 
 .login-link:hover {
-    color: #4169E1;
+    color: #6495ED;
     text-decoration: underline;
 }
 
@@ -338,12 +285,6 @@ export default {
 
 :deep(.v-field--focused .v-field__outline) {
     border-color: #6495ED !important;
-}
-
-/* Hint text styling */
-:deep(.v-messages__message) {
-    color: #6495ED !important;
-    font-size: 0.75rem;
 }
 
 /* Responsive adjustments */
